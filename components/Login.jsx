@@ -4,7 +4,7 @@ export default function Login() {
             <input
                 className="w-full bg-[#E3FCFF] p-5 rounded-xl shadow-lg text-black placeholder:text-left"
                 type="email"
-                placeholder="CRP ou email"
+                placeholder="CRM ou email"
             />
             <input
                 className="w-full bg-[#E3FCFF] p-5 rounded-xl shadow-lg text-black"

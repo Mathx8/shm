@@ -1,5 +1,4 @@
 'use client';
-import { useEffect } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 
 export default function Header() {
@@ -9,7 +8,7 @@ export default function Header() {
     console.log(url)
 
     return (
-        <header className="flex items-center justify-between w-full px-6 md:px-12 py-4 bg-white dark:bg-black text-[#008CFF] shadow-sm transition-colors duration-500">
+        <header className="flex items-center justify-between w-full px-8 md:px-16 py-6 bg-[#E4EBFF] dark:bg-[#141B29] text-[#008CFF] shadow-sm transition-colors duration-500">
             <div className="">
                 <h1>SHM</h1>
             </div>

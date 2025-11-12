@@ -1,10 +1,10 @@
-export default function PlantaoGestor() {
+export default function GerenciarMedico() {
     return (
         <div className="w-full flex flex-col mx-auto py-8 px-4 gap-5">
             <div className="">
                 <div className="w-full py-2 border-b-1 border-[#448ae9] mb-4">
                     <h1 className="text-2xl font-bold text-[#008CFF]">
-                        Adicione um Plantão
+                        Adicione um Médico
                     </h1>
                 </div>
                 <div className="w-full py-2">
@@ -12,50 +12,38 @@ export default function PlantaoGestor() {
                         <input
                             className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                             type="text"
-                            placeholder="Título"
+                            placeholder="Nome"
                         />
                         <input
                             className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                             type="text"
-                            placeholder="Descrição"
+                            placeholder="CRM"
                         />
                         <input
                             className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                             type="text"
-                            placeholder="Cargo Requerido"
+                            placeholder="Especialidade"
                         />
                         <input
                             className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
-                            type="text"
-                            placeholder="Tipo"
+                            type="email"
+                            placeholder="E-mail"
                         />
                         <input
                             className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
-                            type="text"
-                            placeholder="Valor"
+                            type="password"
+                            placeholder="Senha"
                         />
-                        <input
-                            className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
-                            type="date"
-                            placeholder="Dia"
-                        />
-                        <div className="grid grid-cols-2 gap-3">
-                            <input
-                                type="time"
-                                className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
-                            />
-                            <input
-                                type="time"
-                                className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
-                            />
-                        </div>
+                        <button className="w-full text-black font-bold bg-[#008CFF] p-5 rounded-full shadow-lg cursor-pointer hover:bg-[#4AADFF]">
+                            CRIAR
+                        </button>
                     </form>
                 </div>
             </div>
             <div className="">
                 <div className="w-full py-2 border-b-1 border-[#448ae9] mb-4">
                     <h1 className="text-2xl font-bold text-[#008CFF]">
-                        Seus Plantões
+                        Seus Médicos
                     </h1>
                 </div>
                 <div className="w-full flex flex-wrap justify-between py-2">

@@ -35,6 +35,7 @@ export default function Header() {
                     <>
                         <Link className={linkClass("medico")} href="/adm?tab=medico">Médico</Link>
                         <Link className={linkClass("gestor")} href="/adm?tab=gestor">Gestor</Link>
+                        <Link className={linkClass("hospital")} href="/adm?tab=hospital">Hospital</Link>
                         <Link className={linkClass("logs")} href="/adm?tab=logs">Logs</Link>
                     </>
                 )}

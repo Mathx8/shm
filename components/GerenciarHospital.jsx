@@ -1,33 +1,33 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getMedicos, createMedico, updateMedico, deleteMedico } from "@/services/api";
+import { getHospitais, createHospital, updateHospital, deleteHospital } from "@/services/api";
 
-export default function Medico() {
-    const [medicos, setMedicos] = useState([]);
+export default function GerenciarHospital() {
+    const [hospitais, setHospitais] = useState([]);
     const [carregando, setCarregando] = useState(false);
     const [mensagem, setMensagem] = useState("");
     const [buscando, setBuscando] = useState(false);
 
     const [editingId, setEditingId] = useState(null);
     const [nome, setNome] = useState("");
-    const [crm, setCrm] = useState("");
-    const [especialidade, setEspecialidade] = useState("");
+    const [endereco, setEndereco] = useState("");
+    const [telefone, setTelefone] = useState("");
     const [email, setEmail] = useState("");
-    const [senha, setSenha] = useState("");
+    const [cnpj, setCnpj] = useState("");
 
     useEffect(() => {
-        fetchMedicos();
+        fetchHospitais();
     }, []);
 
-    async function fetchMedicos() {
+    async function fetchHospitais() {
         setBuscando(true);
         try {
-            const res = await getMedicos();
-            const data = res.data?.medicos ?? res.data ?? [];
-            setMedicos(data);
+            const res = await getHospitais();
+            const data = res.data?.hospitais ?? res.data ?? [];
+            setHospitais(data);
         } catch (err) {
             console.error(err);
-            setMensagem(err.message || "Erro ao buscar médicos.");
+            setMensagem("Erro ao buscar hospitais.");
         } finally {
             setBuscando(false);
         }
@@ -35,18 +35,16 @@ export default function Medico() {
 
     function resetForm() {
         setNome("");
-        setCrm("");
-        setEspecialidade("");
+        setEndereco("");
+        setTelefone("");
         setEmail("");
-        setSenha("");
+        setCnpj("");
         setEditingId(null);
     }
 
     async function handleSubmit(e) {
-        e?.preventDefault();
-        setMensagem("");
-
-        if (!nome.trim() || !crm.trim() || !especialidade.trim()) {
+        e.preventDefault();
+        if (!nome.trim() || !endereco.trim() || !telefone.trim() || !cnpj.trim()) {
             setMensagem("Preencha todos os campos obrigatórios.");
             return;
         }
@@ -54,42 +52,43 @@ export default function Medico() {
         setCarregando(true);
         try {
             if (editingId) {
-                await updateMedico(editingId, { nome, crm, especialidade, email });
-                setMensagem("Médico atualizado com sucesso!");
+                await updateHospital(editingId, { nome, endereco, telefone, email, cnpj });
+                setMensagem("Hospital atualizado com sucesso!");
             } else {
-                await createMedico({ nome, crm, especialidade, email, senha });
-                setMensagem("Médico criado com sucesso!");
+                await createHospital({ nome, endereco, telefone, email, cnpj });
+                setMensagem("Hospital cadastrado com sucesso!");
             }
-            await fetchMedicos();
+
+            await fetchHospitais();
             resetForm();
         } catch (err) {
             console.error(err);
-            setMensagem(err.message || "Erro ao salvar médico.");
+            setMensagem("Erro ao salvar hospital.");
         } finally {
             setCarregando(false);
         }
     }
 
-    function startEdit(medico) {
-        setEditingId(medico.id);
-        setNome(medico.nome || "");
-        setCrm(medico.crm || "");
-        setEspecialidade(medico.especialidade || "");
-        setEmail(medico.email || "");
+    function startEdit(hosp) {
+        setEditingId(hosp.id);
+        setNome(hosp.nome || "");
+        setEndereco(hosp.endereco || "");
+        setTelefone(hosp.telefone || "");
+        setEmail(hosp.email || "");
+        setCnpj(hosp.cnpj || "");
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     async function handleDelete(id) {
-        const confirmMsg = "Deseja excluir este médico?"
-        if (!confirm(confirmMsg)) return;
+        if (!confirm("Deseja excluir este hospital?")) return;
         try {
             setCarregando(true);
-            await deleteMedico(id);
-            setMensagem("Médico excluído.");
-            await fetchMedicos();
+            await deleteHospital(id);
+            setMensagem("Hospital excluído.");
+            await fetchHospitais();
         } catch (err) {
             console.error(err);
-            setMensagem(err.message || "Erro ao excluir médico.");
+            setMensagem("Erro ao excluir hospital.");
         } finally {
             setCarregando(false);
         }
@@ -100,48 +99,46 @@ export default function Medico() {
             <div className="bg-white dark:bg-black border-2 border-[#008CFF] rounded-xl shadow-inner">
                 <div className="w-full p-4 border-b-1 border-[#008CFF] mb-4">
                     <h1 className="text-2xl font-bold text-[#008CFF]">
-                        Cadastrar Médico
+                        Cadastrar Hospital
                     </h1>
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4 mb-6 p-4">
                     <input
-                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
                         type="text"
                         placeholder="Nome"
                         value={nome}
                         onChange={(e) => setNome(e.target.value)}
                     />
                     <input
-                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
                         type="text"
-                        placeholder="CRM"
-                        value={crm}
-                        onChange={(e) => setCrm(e.target.value)}
+                        placeholder="Endereço"
+                        value={endereco}
+                        onChange={(e) => setEndereco(e.target.value)}
                     />
                     <input
-                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
                         type="text"
-                        placeholder="Especialidade"
-                        value={especialidade}
-                        onChange={(e) => setEspecialidade(e.target.value)}
+                        placeholder="Telefone"
+                        value={telefone}
+                        onChange={(e) => setTelefone(e.target.value)}
                     />
                     <input
-                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
                         type="email"
                         placeholder="E-mail"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
-                    {!editingId && (
-                        <input
-                            className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
-                            type="password"
-                            placeholder="Senha"
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}
-                        />
-                    )}
+                    <input
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
+                        type="text"
+                        placeholder="CNPJ"
+                        value={cnpj}
+                        onChange={(e) => setCnpj(e.target.value)}
+                    />
 
                     {mensagem && (
                         <p className="text-sm text-center text-[#008CFF]">{mensagem}</p>
@@ -157,8 +154,7 @@ export default function Medico() {
                                 ? "Salvando..."
                                 : editingId
                                     ? "ATUALIZAR"
-                                    : "ADICIONAR"
-                            }
+                                    : "ADICIONAR"}
                         </button>
 
                         {editingId && (
@@ -174,48 +170,44 @@ export default function Medico() {
                 </form>
             </div>
 
-            <div className="bg-white dark:bg-black border-2 border-[#008CFF] rounded-xl shadow-inner border-1">
+            <div className="bg-white dark:bg-black border-2 border-[#008CFF] rounded-xl shadow-inner">
                 <div className="w-full p-4 border-b-1 border-[#008CFF]">
                     <h1 className="text-2xl font-bold text-[#008CFF]">
-                        Todos os médicos
+                        Todos os Hospitais
                     </h1>
                 </div>
 
                 {buscando ? (
                     <p>Carregando...</p>
-                ) : medicos.length === 0 ? (
-                    <p>Nenhum médico encontrado</p>
+                ) : hospitais.length === 0 ? (
+                    <p className="p-4">Nenhum hospital encontrado</p>
                 ) : (
                     <ul className="flex flex-col gap-3 p-4">
-                        {medicos.map((medico) => (
+                        {hospitais.map((h) => (
                             <li
-                                key={medico.id}
+                                key={h.id}
                                 className="flex items-center justify-between gap-4 p-3 bg-[#E4EBFF] dark:bg-[#141B29] rounded-lg border border-[#008CFF]/30"
                             >
                                 <div>
-                                    <div className="font-semibold text-[#008CFF]">
-                                        {medico.nome}
+                                    <div className="font-semibold text-[#008CFF]">{h.nome}</div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                                        {h.endereco} — {h.telefone}
                                     </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-300">
-                                        {medico.crm} — {medico.especialidade}
+                                        {h.email} — {h.cnpj}
                                     </div>
-                                    {medico.email && (
-                                        <div className="text-sm text-gray-600 dark:text-gray-300">
-                                            {medico.email}
-                                        </div>
-                                    )}
                                 </div>
 
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => startEdit(medico)}
+                                        onClick={() => startEdit(h)}
                                         className="px-3 py-2 rounded-md bg-[#cce2ff] hover:bg-[#b7d7ff] text-[#008CFF] font-semibold cursor-pointer"
                                     >
                                         Editar
                                     </button>
 
                                     <button
-                                        onClick={() => handleDelete(medico.id)}
+                                        onClick={() => handleDelete(h.id)}
                                         className="px-3 py-2 rounded-md bg-red-600 hover:opacity-90 text-white font-semibold cursor-pointer"
                                     >
                                         Excluir

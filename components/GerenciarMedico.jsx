@@ -189,7 +189,7 @@ export default function Medico() {
                     <ul className="flex flex-col gap-3 p-4">
                         {medicos.map((medico) => (
                             <li
-                                key={medico.id}
+                                key={medico.medico_id}
                                 className="flex items-center justify-between gap-4 p-3 bg-[#E4EBFF] dark:bg-[#141B29] rounded-lg border border-[#008CFF]/30"
                             >
                                 <div>

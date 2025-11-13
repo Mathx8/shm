@@ -191,7 +191,7 @@ export default function GerenciarHospital() {
                                 <div>
                                     <div className="font-semibold text-[#008CFF]">{h.nome}</div>
                                     <div className="text-sm text-gray-600 dark:text-gray-300">
-                                        {h.endereco} — {h.telefone}
+                                        {h.endereco}
                                     </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-300">
                                         {h.email} — {h.cnpj}

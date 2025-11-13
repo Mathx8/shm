@@ -7,6 +7,14 @@ const apiClient = axios.create({
   },
 });
 
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const getUsuarios = () => apiClient.get("/usuarios/");
 export const createUsuario = (data) => apiClient.post("/usuarios/", data);
 export const updateUsuario = (id, data) => apiClient.put(`/usuarios/${id}`, data);
@@ -23,12 +31,11 @@ export const updateHospital = (id, data) => apiClient.put(`/hospitais/${id}`, da
 export const deleteHospital = (id) => apiClient.delete(`/hospitais/${id}`);
 
 export const getPlantoes = () => apiClient.get("/plantoes/");
-export const createPlantao = (dados) => api.post("/plantoes", dados);
-export const updatePlantao = (id, dados) => api.put(`/plantoes/${id}`, dados);
-export const deletePlantao = (id) => api.delete(`/plantoes/${id}`);
+export const createPlantao = (dados) => apiClient.post("/plantoes/", dados);
+export const updatePlantao = (id, dados) => apiClient.put(`/plantoes/${id}`, dados);
+export const deletePlantao = (id) => apiClient.delete(`/plantoes/${id}`);
 
 export const getAceitaPlantoes = () => apiClient.get("/aceita_plantoes/");
 
-export const getHistorico = () => apiClient.get("/historico/"); 
-
+export const getHistorico = () => apiClient.get("/historico/");
 export const getHistoricoMedico = () => apiClient.get("/historico_medico/");

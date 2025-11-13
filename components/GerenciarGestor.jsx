@@ -1,6 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getUsuarios, createUsuario, updateUsuario, deleteUsuario, getHospitais } from "@/services/api";
+import {
+    getUsuarios,
+    createUsuario,
+    updateUsuario,
+    deleteUsuario,
+    getHospitais
+} from "@/services/api";
 
 export default function GerenciarGestor() {
     const [gestores, setGestores] = useState([]);
@@ -14,7 +20,7 @@ export default function GerenciarGestor() {
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
     const [telefone, setTelefone] = useState("");
-    const [idHospital, setIdHospital] = useState("");
+    const [hospitalId, setHospitalId] = useState("");
 
     useEffect(() => {
         fetchGestores();
@@ -26,11 +32,12 @@ export default function GerenciarGestor() {
         try {
             const res = await getUsuarios();
             const data = res.data?.usuarios ?? res.data ?? [];
-            const apenasGestores = data.filter((u) => u.papel === "gestor");
+
+            const apenasGestores = data.filter((u) => u.papel === "GESTOR");
             setGestores(apenasGestores);
         } catch (err) {
             console.error(err);
-            setMensagem(err.message || "Erro ao buscar gestores.");
+            setMensagem("Erro ao buscar gestores.");
         } finally {
             setBuscando(false);
         }
@@ -51,7 +58,7 @@ export default function GerenciarGestor() {
         setEmail("");
         setSenha("");
         setTelefone("");
-        setIdHospital("");
+        setHospitalId("");
         setEditingId(null);
     }
 
@@ -59,7 +66,7 @@ export default function GerenciarGestor() {
         e?.preventDefault();
         setMensagem("");
 
-        if (!nome.trim() || !email.trim() || (!editingId && !senha.trim()) || !idHospital) {
+        if (!nome.trim() || !email.trim() || (!editingId && !senha.trim()) || !hospitalId) {
             setMensagem("Preencha todos os campos obrigatórios.");
             return;
         }
@@ -71,7 +78,7 @@ export default function GerenciarGestor() {
                     nome,
                     email,
                     telefone,
-                    id_hospital: idHospital,
+                    hospital_id: hospitalId,
                 });
                 setMensagem("Gestor atualizado com sucesso!");
             } else {
@@ -80,33 +87,33 @@ export default function GerenciarGestor() {
                     email,
                     senha,
                     telefone,
-                    papel: "gestor",
-                    id_hospital: idHospital,
+                    papel: "GESTOR",
+                    hospital_id: hospitalId,
                 });
                 setMensagem("Gestor criado com sucesso!");
             }
+
             await fetchGestores();
             resetForm();
         } catch (err) {
             console.error(err);
-            setMensagem(err.message || "Erro ao salvar gestor.");
+            setMensagem("Erro ao salvar gestor.");
         } finally {
             setCarregando(false);
         }
     }
 
     function startEdit(gestor) {
-        setEditingId(gestor.id);
+        setEditingId(gestor.usuario_id);
         setNome(gestor.nome || "");
         setEmail(gestor.email || "");
         setTelefone(gestor.telefone || "");
-        setIdHospital(gestor.id_hospital || "");
+        setHospitalId(gestor.hospital_id || "");
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     async function handleDelete(id) {
-        const confirmMsg = "Deseja excluir este gestor?";
-        if (!confirm(confirmMsg)) return;
+        if (!confirm("Deseja excluir este gestor?")) return;
         try {
             setCarregando(true);
             await deleteUsuario(id);
@@ -114,7 +121,7 @@ export default function GerenciarGestor() {
             await fetchGestores();
         } catch (err) {
             console.error(err);
-            setMensagem(err.message || "Erro ao excluir gestor.");
+            setMensagem("Erro ao excluir gestor.");
         } finally {
             setCarregando(false);
         }
@@ -131,30 +138,33 @@ export default function GerenciarGestor() {
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4 mb-6 p-4">
                     <input
-                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl"
                         type="text"
                         placeholder="Nome"
                         value={nome}
                         onChange={(e) => setNome(e.target.value)}
                     />
+
                     <input
-                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl"
                         type="email"
                         placeholder="E-mail"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                     />
+
                     {!editingId && (
                         <input
-                            className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
+                            className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl"
                             type="password"
                             placeholder="Senha"
                             value={senha}
                             onChange={(e) => setSenha(e.target.value)}
                         />
                     )}
+
                     <input
-                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl"
                         type="text"
                         placeholder="Telefone"
                         value={telefone}
@@ -162,9 +172,9 @@ export default function GerenciarGestor() {
                     />
 
                     <select
-                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
-                        value={idHospital}
-                        onChange={(e) => setIdHospital(e.target.value)}
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl"
+                        value={hospitalId}
+                        onChange={(e) => setHospitalId(e.target.value)}
                     >
                         <option value="">Selecione um hospital</option>
                         {hospitais.map((h) => (
@@ -182,20 +192,16 @@ export default function GerenciarGestor() {
                         <button
                             type="submit"
                             disabled={carregando}
-                            className="flex-1 bg-[#008CFF] text-white dark:text-black py-3 rounded-full font-bold hover:opacity-90 disabled:opacity-60 cursor-pointer"
+                            className="flex-1 bg-[#008CFF] text-white py-3 rounded-full font-bold hover:opacity-90"
                         >
-                            {carregando
-                                ? "Salvando..."
-                                : editingId
-                                    ? "ATUALIZAR"
-                                    : "ADICIONAR"}
+                            {carregando ? "Salvando..." : editingId ? "ATUALIZAR" : "ADICIONAR"}
                         </button>
 
                         {editingId && (
                             <button
                                 type="button"
                                 onClick={resetForm}
-                                className="bg-white dark:bg-black text-[#008CFF] py-3 px-4 rounded-full font-semibold border hover:opacity-90 cursor-pointer"
+                                className="bg-white dark:bg-black text-[#008CFF] py-3 px-4 rounded-full border"
                             >
                                 Cancelar
                             </button>
@@ -204,7 +210,7 @@ export default function GerenciarGestor() {
                 </form>
             </div>
 
-            <div className="bg-white dark:bg-black border-2 border-[#008CFF] rounded-xl shadow-inner border-1">
+            <div className="bg-white dark:bg-black border-2 border-[#008CFF] rounded-xl shadow-inner">
                 <div className="w-full p-4 border-b-1 border-[#008CFF]">
                     <h1 className="text-2xl font-bold text-[#008CFF]">Todos os Gestores</h1>
                 </div>
@@ -217,34 +223,26 @@ export default function GerenciarGestor() {
                     <ul className="flex flex-col gap-3 p-4">
                         {gestores.map((gestor) => (
                             <li
-                                key={gestor.id}
-                                className="flex items-center justify-between gap-4 p-3 bg-[#E4EBFF] dark:bg-[#141B29] rounded-lg border border-[#008CFF]/30"
+                                key={gestor.usuario_id}
+                                className="flex items-center justify-between p-3 bg-[#E4EBFF] dark:bg-[#141B29] rounded-lg"
                             >
                                 <div>
                                     <div className="font-semibold text-[#008CFF]">{gestor.nome}</div>
-                                    {gestor.email && (
-                                        <div className="text-sm text-gray-600 dark:text-gray-300">
-                                            {gestor.email}
-                                        </div>
-                                    )}
-                                    {gestor.telefone && (
-                                        <div className="text-sm text-gray-600 dark:text-gray-300">
-                                            {gestor.telefone}
-                                        </div>
-                                    )}
+                                    <div className="text-sm">{gestor.email}</div>
+                                    <div className="text-sm">{gestor.telefone}</div>
                                 </div>
 
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => startEdit(gestor)}
-                                        className="px-3 py-2 rounded-md bg-[#cce2ff] hover:bg-[#b7d7ff] text-[#008CFF] font-semibold cursor-pointer"
+                                        className="px-3 py-2 rounded-md bg-[#cce2ff] text-[#008CFF]"
                                     >
                                         Editar
                                     </button>
 
                                     <button
-                                        onClick={() => handleDelete(gestor.id)}
-                                        className="px-3 py-2 rounded-md bg-red-600 hover:opacity-90 text-white font-semibold cursor-pointer"
+                                        onClick={() => handleDelete(gestor.usuario_id)}
+                                        className="px-3 py-2 rounded-md bg-red-600 text-white"
                                     >
                                         Excluir
                                     </button>

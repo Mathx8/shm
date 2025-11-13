@@ -26,8 +26,17 @@ export default function PlantaoGestor() {
         setBuscando(true);
         try {
             const res = await getPlantoes();
-            const data = res.data?.plantoes ?? res.data ?? [];
+            let data = res.data?.plantoes ?? res.data ?? [];
+
+            data = data.map((p) => ({
+                ...p,
+                valor: typeof p.valor === "object" && p.valor?.$numberDecimal
+                    ? parseFloat(p.valor.$numberDecimal)
+                    : p.valor
+            }));
+
             setPlantoes(data);
+
         } catch (err) {
             console.error(err);
             setMensagem(err.message || "Erro ao buscar plantões.");
@@ -238,7 +247,7 @@ export default function PlantaoGestor() {
                                         {plantao.titulo}
                                     </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-300">
-                                        {plantao.cargo} — {plantao.tipo}
+                                        {plantao.cargo_requerido} — {plantao.tipo}
                                     </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-300">
                                         {plantao.dia?.split("T")[0]} | R$ {plantao.valor}

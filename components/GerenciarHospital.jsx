@@ -11,7 +11,6 @@ export default function GerenciarHospital() {
     const [editingId, setEditingId] = useState(null);
     const [nome, setNome] = useState("");
     const [endereco, setEndereco] = useState("");
-    const [telefone, setTelefone] = useState("");
     const [email, setEmail] = useState("");
     const [cnpj, setCnpj] = useState("");
 
@@ -36,7 +35,6 @@ export default function GerenciarHospital() {
     function resetForm() {
         setNome("");
         setEndereco("");
-        setTelefone("");
         setEmail("");
         setCnpj("");
         setEditingId(null);
@@ -44,7 +42,7 @@ export default function GerenciarHospital() {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!nome.trim() || !endereco.trim() || !telefone.trim() || !cnpj.trim()) {
+        if (!nome.trim() || !endereco.trim() || !cnpj.trim()) {
             setMensagem("Preencha todos os campos obrigatórios.");
             return;
         }
@@ -52,10 +50,10 @@ export default function GerenciarHospital() {
         setCarregando(true);
         try {
             if (editingId) {
-                await updateHospital(editingId, { nome, endereco, telefone, email, cnpj });
+                await updateHospital(editingId, { nome, endereco, email, cnpj });
                 setMensagem("Hospital atualizado com sucesso!");
             } else {
-                await createHospital({ nome, endereco, telefone, email, cnpj });
+                await createHospital({ nome, endereco, email, cnpj });
                 setMensagem("Hospital cadastrado com sucesso!");
             }
 
@@ -70,10 +68,9 @@ export default function GerenciarHospital() {
     }
 
     function startEdit(hosp) {
-        setEditingId(hosp.id);
+        setEditingId(hosp.hospital_id);
         setNome(hosp.nome || "");
         setEndereco(hosp.endereco || "");
-        setTelefone(hosp.telefone || "");
         setEmail(hosp.email || "");
         setCnpj(hosp.cnpj || "");
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -117,13 +114,6 @@ export default function GerenciarHospital() {
                         placeholder="Endereço"
                         value={endereco}
                         onChange={(e) => setEndereco(e.target.value)}
-                    />
-                    <input
-                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
-                        type="text"
-                        placeholder="Telefone"
-                        value={telefone}
-                        onChange={(e) => setTelefone(e.target.value)}
                     />
                     <input
                         className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
@@ -207,7 +197,7 @@ export default function GerenciarHospital() {
                                     </button>
 
                                     <button
-                                        onClick={() => handleDelete(h.id)}
+                                        onClick={() => handleDelete(h.hospital_id)}
                                         className="px-3 py-2 rounded-md bg-red-600 hover:opacity-90 text-white font-semibold cursor-pointer"
                                     >
                                         Excluir

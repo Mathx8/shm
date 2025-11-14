@@ -8,10 +8,13 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const authData = JSON.parse(localStorage.getItem("authData") || "{}");
+  const token = authData.token;
+
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 
@@ -39,3 +42,5 @@ export const getAceitaPlantoes = () => apiClient.get("/aceita_plantoes/");
 
 export const getHistorico = () => apiClient.get("/historico/");
 export const getHistoricoMedico = () => apiClient.get("/historico_medico/");
+
+export const getLogsAuditoria = () => apiClient.get("/logs_auditoria/");

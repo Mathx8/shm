@@ -78,17 +78,17 @@ export default function GerenciarGestor() {
                     nome,
                     email,
                     telefone,
-                    hospital_id: hospitalId,
+                    hospital_id: Number(hospitalId),
                 });
                 setMensagem("Gestor atualizado com sucesso!");
             } else {
                 await createUsuario({
                     nome,
                     email,
-                    senha,
+                    senha_hash: senha,
                     telefone,
                     papel: "GESTOR",
-                    hospital_id: hospitalId,
+                    hospital_id: Number(hospitalId),
                 });
                 setMensagem("Gestor criado com sucesso!");
             }
@@ -178,7 +178,7 @@ export default function GerenciarGestor() {
                     >
                         <option value="">Selecione um hospital</option>
                         {hospitais.map((h) => (
-                            <option key={h.id} value={h.id}>
+                            <option key={h.hospital_id} value={h.hospital_id}>
                                 {h.nome}
                             </option>
                         ))}

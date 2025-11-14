@@ -10,7 +10,7 @@ export default function Medico() {
 
     const [editingId, setEditingId] = useState(null);
     const [nome, setNome] = useState("");
-    const [crm, setCrm] = useState("");
+    const [CRM, setCrm] = useState("");
     const [especialidade, setEspecialidade] = useState("");
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
@@ -46,7 +46,7 @@ export default function Medico() {
         e?.preventDefault();
         setMensagem("");
 
-        if (!nome.trim() || !crm.trim() || !especialidade.trim()) {
+        if (!nome.trim() || !CRM.trim() || !especialidade.trim()) {
             setMensagem("Preencha todos os campos obrigatórios.");
             return;
         }
@@ -54,10 +54,10 @@ export default function Medico() {
         setCarregando(true);
         try {
             if (editingId) {
-                await updateMedico(editingId, { nome, crm, especialidade, email });
+                await updateMedico(editingId, { nome, CRM, especialidade, email });
                 setMensagem("Médico atualizado com sucesso!");
             } else {
-                await createMedico({ nome, crm, especialidade, email, senha });
+                await createMedico({ nome, CRM, especialidade, email, senha });
                 setMensagem("Médico criado com sucesso!");
             }
             await fetchMedicos();
@@ -71,9 +71,9 @@ export default function Medico() {
     }
 
     function startEdit(medico) {
-        setEditingId(medico.id);
+        setEditingId(medico.medico_id);
         setNome(medico.nome || "");
-        setCrm(medico.crm || "");
+        setCrm(medico.CRM || "");
         setEspecialidade(medico.especialidade || "");
         setEmail(medico.email || "");
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -116,7 +116,7 @@ export default function Medico() {
                         className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                         type="text"
                         placeholder="CRM"
-                        value={crm}
+                        value={CRM}
                         onChange={(e) => setCrm(e.target.value)}
                     />
                     <input
@@ -197,7 +197,7 @@ export default function Medico() {
                                         {medico.nome}
                                     </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-300">
-                                        {medico.crm} — {medico.especialidade}
+                                        {medico.CRM} — {medico.especialidade}
                                     </div>
                                     {medico.email && (
                                         <div className="text-sm text-gray-600 dark:text-gray-300">
@@ -215,7 +215,7 @@ export default function Medico() {
                                     </button>
 
                                     <button
-                                        onClick={() => handleDelete(medico.id)}
+                                        onClick={() => handleDelete(medico.medico_id)}
                                         className="px-3 py-2 rounded-md bg-red-600 hover:opacity-90 text-white font-semibold cursor-pointer"
                                     >
                                         Excluir

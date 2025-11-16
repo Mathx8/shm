@@ -38,9 +38,9 @@ export const createPlantao = (dados) => apiClient.post("/plantoes/", dados);
 export const updatePlantao = (id, dados) => apiClient.put(`/plantoes/${id}`, dados);
 export const deletePlantao = (id) => apiClient.delete(`/plantoes/${id}`);
 
-export const getAceitaPlantoes = () => apiClient.get("/aceita_plantoes/");
+export const aceitarPlantao = (CRM, plantao_id) => apiClient.post("/aceita_plantoes/", {CRM, plantao_id});
 
 export const getHistorico = () => apiClient.get("/historico/");
-export const getHistoricoMedico = () => apiClient.get("/historico_medico/");
+export const getHistoricoMedico = (crm) => apiClient.get(`/historico_medico/${crm}`);
 
 export const getLogsAuditoria = () => apiClient.get("/logs_auditoria/");

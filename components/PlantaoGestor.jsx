@@ -11,12 +11,12 @@ export default function PlantaoGestor() {
     const [editingId, setEditingId] = useState(null);
     const [titulo, setTitulo] = useState("");
     const [descricao, setDescricao] = useState("");
-    const [cargo, setCargo] = useState("");
+    const [cargo_requerido, setCargo] = useState("");
     const [tipo, setTipo] = useState("");
     const [valor, setValor] = useState("");
     const [dia, setDia] = useState("");
-    const [horaInicio, setHoraInicio] = useState("");
-    const [horaFim, setHoraFim] = useState("");
+    const [horario_inicio, setHoraInicio] = useState("");
+    const [horario_final, setHoraFim] = useState("");
 
     useEffect(() => {
         fetchPlantoes();
@@ -61,7 +61,7 @@ export default function PlantaoGestor() {
         e?.preventDefault();
         setMensagem("");
 
-        if (!titulo.trim() || !cargo.trim() || !dia.trim()) {
+        if (!titulo.trim() || !cargo_requerido.trim() || !dia.trim()) {
             setMensagem("Preencha os campos obrigatórios (Título, Cargo e Dia).");
             return;
         }
@@ -71,12 +71,12 @@ export default function PlantaoGestor() {
             const payload = {
                 titulo,
                 descricao,
-                cargo,
+                cargo_requerido,
                 tipo,
                 valor,
                 dia,
-                hora_inicio: horaInicio,
-                hora_fim: horaFim,
+                horario_inicio,
+                horario_final,
             };
 
             if (editingId) {
@@ -97,16 +97,31 @@ export default function PlantaoGestor() {
         }
     }
 
+    function formatarDiaParaBR(diaISOouBR) {
+        if (!diaISOouBR) return "";
+
+        if (diaISOouBR.includes("/")) return diaISOouBR;
+
+        const [ano, mes, dia] = diaISOouBR.split("-");
+        return `${dia}/${mes}/${ano}`;
+    }
+
+    function formatarDiaParaInput(diaBr) {
+        if (!diaBr) return "";
+        const [dia, mes, ano] = diaBr.split("/");
+        return `${ano}-${mes}-${dia}`;
+    }
+
     function startEdit(plantao) {
-        setEditingId(plantao.id);
+        setEditingId(plantao.plantao_id);
         setTitulo(plantao.titulo || "");
         setDescricao(plantao.descricao || "");
-        setCargo(plantao.cargo || "");
+        setCargo(plantao.cargo_requerido || "");
         setTipo(plantao.tipo || "");
         setValor(plantao.valor || "");
-        setDia(plantao.dia?.split("T")[0] || "");
-        setHoraInicio(plantao.hora_inicio || "");
-        setHoraFim(plantao.hora_fim || "");
+        setDia(formatarDiaParaInput(plantao.dia));
+        setHoraInicio(plantao.horario_inicio || "");
+        setHoraFim(plantao.horario_final || "");
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -154,7 +169,7 @@ export default function PlantaoGestor() {
                         className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                         type="text"
                         placeholder="Cargo Requerido"
-                        value={cargo}
+                        value={cargo_requerido}
                         onChange={(e) => setCargo(e.target.value)}
                     />
                     <input
@@ -182,13 +197,13 @@ export default function PlantaoGestor() {
                         <input
                             type="time"
                             className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
-                            value={horaInicio}
+                            value={horario_inicio}
                             onChange={(e) => setHoraInicio(e.target.value)}
                         />
                         <input
                             type="time"
                             className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
-                            value={horaFim}
+                            value={horario_final}
                             onChange={(e) => setHoraFim(e.target.value)}
                         />
                     </div>
@@ -239,7 +254,7 @@ export default function PlantaoGestor() {
                     <ul className="flex flex-col gap-3 p-4">
                         {plantoes.map((plantao) => (
                             <li
-                                key={plantao.id}
+                                key={plantao.plantao_id}
                                 className="flex items-center justify-between gap-4 p-3 bg-[#E4EBFF] dark:bg-[#141B29] rounded-lg border border-[#008CFF]/30"
                             >
                                 <div>
@@ -250,7 +265,7 @@ export default function PlantaoGestor() {
                                         {plantao.cargo_requerido} — {plantao.tipo}
                                     </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-300">
-                                        {plantao.dia?.split("T")[0]} | R$ {plantao.valor}
+                                        {formatarDiaParaBR(plantao.dia)} | R$ {plantao.valor}
                                     </div>
                                 </div>
 
@@ -262,7 +277,7 @@ export default function PlantaoGestor() {
                                         Editar
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(plantao.id)}
+                                        onClick={() => handleDelete(plantao.plantao_id)}
                                         className="px-3 py-2 rounded-md bg-red-600 hover:opacity-90 text-white font-semibold"
                                     >
                                         Excluir

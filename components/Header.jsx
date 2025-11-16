@@ -1,6 +1,8 @@
 'use client';
 import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import Image from "next/image"
+import Icon from "@/public/Icon.svg"
 
 export default function Header() {
     const pathname = usePathname();
@@ -24,7 +26,12 @@ export default function Header() {
     return (
         <header className="flex items-center justify-between w-full px-8 md:px-16 py-6 bg-[#E4EBFF] dark:bg-[#141B29] text-[#008CFF] shadow-sm transition-colors duration-500">
 
-            <h1 className="text-xl font-bold">SHM</h1>
+            <Image
+                src={Icon}
+                alt="Sistema Hospital Médico"
+                width={36}
+                height={36}
+            />
 
             <nav className="flex items-center gap-6">
                 {pathname === "/medico" && (

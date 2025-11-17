@@ -1,14 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getPlantoes, createPlantao, updatePlantao, deletePlantao } from "@/services/api";
+import { getPlantoes, createPlantao, updatePlantao, deletePlantao, getHospitais } from "@/services/api";
 
 export default function PlantaoGestor() {
     const [plantoes, setPlantoes] = useState([]);
+    const [hospitais, setHospitais] = useState([]);
     const [carregando, setCarregando] = useState(false);
     const [buscando, setBuscando] = useState(false);
     const [mensagem, setMensagem] = useState("");
 
     const [editingId, setEditingId] = useState(null);
+
     const [titulo, setTitulo] = useState("");
     const [descricao, setDescricao] = useState("");
     const [cargo_requerido, setCargo] = useState("");
@@ -17,31 +19,52 @@ export default function PlantaoGestor() {
     const [dia, setDia] = useState("");
     const [horario_inicio, setHoraInicio] = useState("");
     const [horario_final, setHoraFim] = useState("");
+    const [hospital_id, setHospitalId] = useState("");
+    const [status, setStatus] = useState("DISPONIVEL");
+
+    const authData =
+        typeof window !== "undefined"
+            ? JSON.parse(localStorage.getItem("authData"))
+            : null;
+
+    const gestor_id = authData?.dados?.usuario_id;
 
     useEffect(() => {
         fetchPlantoes();
+        fetchHospitais();
     }, []);
 
     async function fetchPlantoes() {
         setBuscando(true);
+
         try {
             const res = await getPlantoes();
             let data = res.data?.plantoes ?? res.data ?? [];
 
-            data = data.map((p) => ({
+            data = data.map(p => ({
                 ...p,
-                valor: typeof p.valor === "object" && p.valor?.$numberDecimal
-                    ? parseFloat(p.valor.$numberDecimal)
-                    : p.valor
+                valor:
+                    typeof p.valor === "object" && p.valor?.$numberDecimal
+                        ? parseFloat(p.valor.$numberDecimal)
+                        : p.valor,
             }));
 
             setPlantoes(data);
-
         } catch (err) {
             console.error(err);
             setMensagem(err.message || "Erro ao buscar plantões.");
         } finally {
             setBuscando(false);
+        }
+    }
+
+    async function fetchHospitais() {
+        try {
+            const res = await getHospitais();
+            const data = res.data?.hospitais ?? res.data ?? [];
+            setHospitais(data);
+        } catch (err) {
+            console.error(err);
         }
     }
 
@@ -54,29 +77,35 @@ export default function PlantaoGestor() {
         setDia("");
         setHoraInicio("");
         setHoraFim("");
+        setHospitalId("");
+        setStatus("DISPONIVEL");
         setEditingId(null);
     }
 
     async function handleSubmit(e) {
-        e?.preventDefault();
+        e.preventDefault();
         setMensagem("");
 
-        if (!titulo.trim() || !cargo_requerido.trim() || !dia.trim()) {
-            setMensagem("Preencha os campos obrigatórios (Título, Cargo e Dia).");
+        if (!titulo.trim() || !cargo_requerido.trim() || !dia.trim() || !hospital_id.trim()) {
+            setMensagem("Preencha os campos obrigatórios (Título, Cargo, Dia e Hospital).");
             return;
         }
 
         setCarregando(true);
+
         try {
             const payload = {
+                hospital_id,
+                gestor_id,
                 titulo,
                 descricao,
                 cargo_requerido,
                 tipo,
                 valor,
-                dia,
+                dia: formatarDiaParaBR(dia),
                 horario_inicio,
                 horario_final,
+                status,
             };
 
             if (editingId) {
@@ -112,22 +141,25 @@ export default function PlantaoGestor() {
         return `${ano}-${mes}-${dia}`;
     }
 
-    function startEdit(plantao) {
-        setEditingId(plantao.plantao_id);
-        setTitulo(plantao.titulo || "");
-        setDescricao(plantao.descricao || "");
-        setCargo(plantao.cargo_requerido || "");
-        setTipo(plantao.tipo || "");
-        setValor(plantao.valor || "");
-        setDia(formatarDiaParaInput(plantao.dia));
-        setHoraInicio(plantao.horario_inicio || "");
-        setHoraFim(plantao.horario_final || "");
+    function startEdit(p) {
+        setEditingId(p.plantao_id);
+        setHospitalId(p.hospital_id || "");
+        setTitulo(p.titulo || "");
+        setDescricao(p.descricao || "");
+        setCargo(p.cargo_requerido || "");
+        setTipo(p.tipo || "");
+        setValor(p.valor || "");
+        setDia(formatarDiaParaInput(p.dia));
+        setHoraInicio(p.horario_inicio || "");
+        setHoraFim(p.horario_final || "");
+        setStatus(p.status || "DISPONIVEL");
+
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     async function handleDelete(id) {
-        const confirmMsg = "Deseja excluir este plantão?";
-        if (!confirm(confirmMsg)) return;
+        if (!confirm("Deseja excluir este plantão?")) return;
+
         try {
             setCarregando(true);
             await deletePlantao(id);
@@ -143,14 +175,28 @@ export default function PlantaoGestor() {
 
     return (
         <div className="w-full flex flex-col mx-auto py-8 px-4 gap-5">
+
             <div className="bg-white dark:bg-black border-2 border-[#008CFF] rounded-xl shadow-inner">
+
                 <div className="w-full p-4 border-b border-[#008CFF] mb-4">
-                    <h1 className="text-2xl font-bold text-[#008CFF]">
-                        Adicione um Plantão
-                    </h1>
+                    <h1 className="text-2xl font-bold text-[#008CFF]">Adicione um Plantão</h1>
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4 mb-6 p-4">
+
+                    <select
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl"
+                        value={hospital_id}
+                        onChange={(e) => setHospitalId(e.target.value)}
+                    >
+                        <option value="">Selecione um hospital</option>
+                        {hospitais.map((h) => (
+                            <option key={h.hospital_id} value={h.hospital_id}>
+                                {h.nome}
+                            </option>
+                        ))}
+                    </select>
+
                     <input
                         className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                         type="text"
@@ -158,6 +204,7 @@ export default function PlantaoGestor() {
                         value={titulo}
                         onChange={(e) => setTitulo(e.target.value)}
                     />
+
                     <input
                         className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                         type="text"
@@ -165,6 +212,7 @@ export default function PlantaoGestor() {
                         value={descricao}
                         onChange={(e) => setDescricao(e.target.value)}
                     />
+
                     <input
                         className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                         type="text"
@@ -172,6 +220,7 @@ export default function PlantaoGestor() {
                         value={cargo_requerido}
                         onChange={(e) => setCargo(e.target.value)}
                     />
+
                     <input
                         className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                         type="text"
@@ -179,6 +228,7 @@ export default function PlantaoGestor() {
                         value={tipo}
                         onChange={(e) => setTipo(e.target.value)}
                     />
+
                     <input
                         className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                         type="number"
@@ -186,6 +236,7 @@ export default function PlantaoGestor() {
                         value={valor}
                         onChange={(e) => setValor(e.target.value)}
                     />
+
                     <input
                         className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl shadow-sm text-black dark:text-white"
                         type="date"
@@ -208,6 +259,17 @@ export default function PlantaoGestor() {
                         />
                     </div>
 
+                    <select
+                        className="w-full bg-[#E4EBFF] dark:bg-[#141B29] p-4 rounded-xl text-black dark:text-white"
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                    >
+                        <option value="DISPONIVEL">DISPONÍVEL</option>
+                        <option value="EM ANDAMENTO">EM ANDAMENTO</option>
+                        <option value="FINALIZADO">FINALIZADO</option>
+                        <option value="CANCELADO">CANCELADO</option>
+                    </select>
+
                     {mensagem && (
                         <p className="text-sm text-center text-[#008CFF]">{mensagem}</p>
                     )}
@@ -218,12 +280,7 @@ export default function PlantaoGestor() {
                             disabled={carregando}
                             className="flex-1 bg-[#008CFF] text-white py-3 rounded-full font-bold hover:opacity-90 disabled:opacity-60"
                         >
-                            {carregando
-                                ? "Salvando..."
-                                : editingId
-                                    ? "ATUALIZAR"
-                                    : "ADICIONAR"
-                            }
+                            {carregando ? "Salvando..." : editingId ? "ATUALIZAR" : "ADICIONAR"}
                         </button>
 
                         {editingId && (
@@ -241,9 +298,7 @@ export default function PlantaoGestor() {
 
             <div className="bg-white dark:bg-black border-2 border-[#008CFF] rounded-xl shadow-inner">
                 <div className="w-full p-4 border-b border-[#008CFF]">
-                    <h1 className="text-2xl font-bold text-[#008CFF]">
-                        Seus Plantões
-                    </h1>
+                    <h1 className="text-2xl font-bold text-[#008CFF]">Seus Plantões</h1>
                 </div>
 
                 {buscando ? (
@@ -252,32 +307,32 @@ export default function PlantaoGestor() {
                     <p className="p-4">Nenhum plantão encontrado.</p>
                 ) : (
                     <ul className="flex flex-col gap-3 p-4">
-                        {plantoes.map((plantao) => (
+                        {plantoes.map(p => (
                             <li
-                                key={plantao.plantao_id}
+                                key={p.plantao_id}
                                 className="flex items-center justify-between gap-4 p-3 bg-[#E4EBFF] dark:bg-[#141B29] rounded-lg border border-[#008CFF]/30"
                             >
                                 <div>
-                                    <div className="font-semibold text-[#008CFF]">
-                                        {plantao.titulo}
+                                    <div className="font-semibold text-[#008CFF]">{p.titulo} {p.tipo}: {p.status}</div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                                        {p.descricao}
                                     </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-300">
-                                        {plantao.cargo_requerido} — {plantao.tipo}
+                                        {p.cargo_requerido} | R$ {p.valor}
                                     </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-300">
-                                        {formatarDiaParaBR(plantao.dia)} | R$ {plantao.valor}
-                                    </div>
-                                </div>
+                                        {formatarDiaParaBR(p.dia)} - {p.horario_inicio} ás {p.horario_final}
+                                    </div>                                </div>
 
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={() => startEdit(plantao)}
+                                        onClick={() => startEdit(p)}
                                         className="px-3 py-2 rounded-md bg-[#cce2ff] hover:bg-[#b7d7ff] text-[#008CFF] font-semibold"
                                     >
                                         Editar
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(plantao.plantao_id)}
+                                        onClick={() => handleDelete(p.plantao_id)}
                                         className="px-3 py-2 rounded-md bg-red-600 hover:opacity-90 text-white font-semibold"
                                     >
                                         Excluir

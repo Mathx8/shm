@@ -40,7 +40,8 @@ export const deletePlantao = (id) => apiClient.delete(`/plantoes/${id}`);
 
 export const aceitarPlantao = (CRM, plantao_id) => apiClient.post("/aceita_plantoes/", {CRM, plantao_id});
 
-export const getHistorico = () => apiClient.get("/historico/");
+export const getHistorico = (usuario_id) => apiClient.get(`/historico/${usuario_id}`);
+export const updateHistorico = (usuario_id) => apiClient.put(`/historico/${usuario_id}`);
 export const getHistoricoMedico = (crm) => apiClient.get(`/historico_medico/${crm}`);
 
 export const getLogsAuditoria = () => apiClient.get("/logs_auditoria/");

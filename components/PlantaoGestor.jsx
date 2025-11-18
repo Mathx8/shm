@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getPlantoes, createPlantao, updatePlantao, deletePlantao, getHospitais } from "@/services/api";
+import ModalAceitarMedico from "./ModalAceitarMedico";
 
 export default function PlantaoGestor() {
     const [plantoes, setPlantoes] = useState([]);
@@ -10,6 +11,9 @@ export default function PlantaoGestor() {
     const [mensagem, setMensagem] = useState("");
 
     const [editingId, setEditingId] = useState(null);
+
+    const [modalAberto, setModalAberto] = useState(false);
+    const [plantaoSelecionado, setPlantaoSelecionado] = useState(null);
 
     const [titulo, setTitulo] = useState("");
     const [descricao, setDescricao] = useState("");
@@ -36,9 +40,8 @@ export default function PlantaoGestor() {
 
     async function fetchPlantoes() {
         setBuscando(true);
-
         try {
-            const res = await getPlantoes();
+            const res = await getPlantoes(); //TODO: listar por id do gestor
             let data = res.data?.plantoes ?? res.data ?? [];
 
             data = data.map(p => ({
@@ -51,8 +54,7 @@ export default function PlantaoGestor() {
 
             setPlantoes(data);
         } catch (err) {
-            console.error(err);
-            setMensagem(err.message || "Erro ao buscar plantões.");
+            setMensagem("Erro ao buscar plantões.");
         } finally {
             setBuscando(false);
         }
@@ -119,19 +121,16 @@ export default function PlantaoGestor() {
             await fetchPlantoes();
             resetForm();
         } catch (err) {
-            console.error(err);
-            setMensagem(err.message || "Erro ao salvar plantão.");
+            setMensagem("Erro ao salvar plantão.");
         } finally {
             setCarregando(false);
         }
     }
 
-    function formatarDiaParaBR(diaISOouBR) {
-        if (!diaISOouBR) return "";
-
-        if (diaISOouBR.includes("/")) return diaISOouBR;
-
-        const [ano, mes, dia] = diaISOouBR.split("-");
+    function formatarDiaParaBR(diaISO) {
+        if (!diaISO) return "";
+        if (diaISO.includes("/")) return diaISO;
+        const [ano, mes, dia] = diaISO.split("-");
         return `${dia}/${mes}/${ano}`;
     }
 
@@ -139,6 +138,11 @@ export default function PlantaoGestor() {
         if (!diaBr) return "";
         const [dia, mes, ano] = diaBr.split("/");
         return `${ano}-${mes}-${dia}`;
+    }
+
+    function handleMedicos(plantao) {
+        setPlantaoSelecionado(plantao);
+        setModalAberto(true);
     }
 
     function startEdit(p) {
@@ -166,8 +170,7 @@ export default function PlantaoGestor() {
             setMensagem("Plantão excluído com sucesso!");
             await fetchPlantoes();
         } catch (err) {
-            console.error(err);
-            setMensagem(err.message || "Erro ao excluir plantão.");
+            setMensagem("Erro ao excluir plantão.");
         } finally {
             setCarregando(false);
         }
@@ -270,9 +273,7 @@ export default function PlantaoGestor() {
                         <option value="CANCELADO">CANCELADO</option>
                     </select>
 
-                    {mensagem && (
-                        <p className="text-sm text-center text-[#008CFF]">{mensagem}</p>
-                    )}
+                    {mensagem && <p className="text-center text-[#008CFF]">{mensagem}</p>}
 
                     <div className="flex gap-3">
                         <button
@@ -303,37 +304,33 @@ export default function PlantaoGestor() {
 
                 {buscando ? (
                     <p className="p-4">Carregando...</p>
-                ) : plantoes.length === 0 ? (
-                    <p className="p-4">Nenhum plantão encontrado.</p>
                 ) : (
-                    <ul className="flex flex-col gap-3 p-4">
+                    <ul className="p-4 flex flex-col gap-3">
                         {plantoes.map(p => (
-                            <li
-                                key={p.plantao_id}
-                                className="flex items-center justify-between gap-4 p-3 bg-[#E4EBFF] dark:bg-[#141B29] rounded-lg border border-[#008CFF]/30"
-                            >
+                            <li key={p.plantao_id} className="flex items-center justify-between bg-[#E4EBFF] p-4 rounded-lg border">
                                 <div>
                                     <div className="font-semibold text-[#008CFF]">{p.titulo} {p.tipo}: {p.status}</div>
-                                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                                        {p.descricao}
-                                    </div>
-                                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                                        {p.cargo_requerido} | R$ {p.valor}
-                                    </div>
-                                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                                        {formatarDiaParaBR(p.dia)} - {p.horario_inicio} ás {p.horario_final}
-                                    </div>                                </div>
+                                    <div>{p.descricao}</div>
+                                    <div>{p.cargo_requerido} | R$ {p.valor}</div>
+                                    <div>{p.dia} - {p.horario_inicio} às {p.horario_final}</div>
+                                </div>
 
                                 <div className="flex gap-2">
                                     <button
+                                        onClick={() => handleMedicos(p)}
+                                        className="px-3 py-2 bg-[#cce2ff] text-[#008CFF] rounded-md hover:cursor-pointer"
+                                    >
+                                        Médicos
+                                    </button>
+                                    <button
                                         onClick={() => startEdit(p)}
-                                        className="px-3 py-2 rounded-md bg-[#cce2ff] hover:bg-[#b7d7ff] text-[#008CFF] font-semibold"
+                                        className="px-3 py-2 rounded-md bg-[#cce2ff] hover:bg-[#b7d7ff] text-[#008CFF] font-semibold hover:cursor-pointer"
                                     >
                                         Editar
                                     </button>
                                     <button
                                         onClick={() => handleDelete(p.plantao_id)}
-                                        className="px-3 py-2 rounded-md bg-red-600 hover:opacity-90 text-white font-semibold"
+                                        className="px-3 py-2 rounded-md bg-red-600 hover:opacity-90 text-white font-semibold hover:cursor-pointer"
                                     >
                                         Excluir
                                     </button>
@@ -343,6 +340,25 @@ export default function PlantaoGestor() {
                     </ul>
                 )}
             </div>
+
+            {modalAberto && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white dark:bg-black p-6 rounded-xl max-w-3xl w-full shadow-xl relative">
+
+                        <button
+                            onClick={() => setModalAberto(false)}
+                            className="absolute top-2 right-2 text-red-500 text-xl font-bold hover:cursor-pointer"
+                        >
+                            ✖
+                        </button>
+
+                        <ModalAceitarMedico
+                            gestor_id={gestor_id}
+                            plantao_id={plantaoSelecionado?.plantao_id}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -4,7 +4,7 @@ import { getHistoricoMedico } from "@/services/api";
 
 export default function Historico() {
     const [historico, setHistorico] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [carregando, setCarregando] = useState(true);
     const [crm, setCrm] = useState(null);
 
     useEffect(() => {
@@ -23,7 +23,7 @@ export default function Historico() {
             } catch (error) {
                 console.error("Erro ao carregar histórico:", error);
             } finally {
-                setLoading(false);
+                setCarregando(false);
             }
         }
 
@@ -40,7 +40,7 @@ export default function Historico() {
                 </div>
             </div>
 
-            {loading ? (
+            {carregando ? (
                 <p className="text-center text-gray-500">Carregando histórico...</p>
             ) : (
                 <div className="overflow-auto border-2 border-[#008CFF] rounded-lg">

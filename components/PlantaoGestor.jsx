@@ -279,7 +279,7 @@ export default function PlantaoGestor() {
                         <button
                             type="submit"
                             disabled={carregando}
-                            className="flex-1 bg-[#008CFF] text-white py-3 rounded-full font-bold hover:opacity-90 disabled:opacity-60"
+                            className="flex-1 bg-[#008CFF] text-white py-3 rounded-full font-bold hover:opacity-90 disabled:opacity-60 hover:cursor-pointer"
                         >
                             {carregando ? "Salvando..." : editingId ? "ATUALIZAR" : "ADICIONAR"}
                         </button>
@@ -288,7 +288,7 @@ export default function PlantaoGestor() {
                             <button
                                 type="button"
                                 onClick={resetForm}
-                                className="bg-white dark:bg-black text-[#008CFF] py-3 px-4 rounded-full font-semibold border hover:opacity-90"
+                                className="bg-white dark:bg-black text-[#008CFF] py-3 px-4 rounded-full font-semibold border hover:opacity-90 hover:cursor-pointer"
                             >
                                 Cancelar
                             </button>
@@ -305,20 +305,28 @@ export default function PlantaoGestor() {
                 {buscando ? (
                     <p className="p-4">Carregando...</p>
                 ) : (
-                    <ul className="p-4 flex flex-col gap-3">
+                    <ul className="flex flex-col gap-3 p-4">
                         {plantoes.map(p => (
-                            <li key={p.plantao_id} className="flex items-center justify-between bg-[#E4EBFF] p-4 rounded-lg border">
+                            <li key={p.plantao_id} className="flex flex-wrap items-center justify-between bg-[#E4EBFF] p-4 rounded-lg bordflex items-center justify-between gap-4 p-3 bg-[#E4EBFF] dark:bg-[#141B29] rounded-lg border border-[#008CFF]/30">
                                 <div>
-                                    <div className="font-semibold text-[#008CFF]">{p.titulo} {p.tipo}: {p.status}</div>
-                                    <div>{p.descricao}</div>
-                                    <div>{p.cargo_requerido} | R$ {p.valor}</div>
-                                    <div>{p.dia} - {p.horario_inicio} às {p.horario_final}</div>
+                                    <div className="font-semibold text-[#008CFF]">
+                                        {p.titulo} {p.tipo}: {p.status}
+                                    </div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                                        {p.descricao}
+                                    </div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                                        {p.cargo_requerido} | R$ {p.valor}
+                                    </div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                                        {formatarDiaParaBR(p.dia)} - {p.horario_inicio} ás {p.horario_final}
+                                    </div>
                                 </div>
 
-                                <div className="flex gap-2">
+                                <div className="flex flex-wrap gap-2">
                                     <button
                                         onClick={() => handleMedicos(p)}
-                                        className="px-3 py-2 bg-[#cce2ff] text-[#008CFF] rounded-md hover:cursor-pointer"
+                                        className="px-3 py-2 rounded-md bg-white dark:bg-black text-[#008CFF] font-semibold hover:cursor-pointer"
                                     >
                                         Médicos
                                     </button>
@@ -341,24 +349,26 @@ export default function PlantaoGestor() {
                 )}
             </div>
 
-            {modalAberto && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white dark:bg-black p-6 rounded-xl max-w-3xl w-full shadow-xl relative">
+            {
+                modalAberto && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white dark:bg-black p-6 rounded-xl max-w-3xl w-full shadow-xl relative">
 
-                        <button
-                            onClick={() => setModalAberto(false)}
-                            className="absolute top-2 right-2 text-red-500 text-xl font-bold hover:cursor-pointer"
-                        >
-                            ✖
-                        </button>
+                            <button
+                                onClick={() => setModalAberto(false)}
+                                className="absolute top-2 right-2 text-red-500 text-xl font-bold hover:cursor-pointer"
+                            >
+                                ✖
+                            </button>
 
-                        <ModalAceitarMedico
-                            gestor_id={gestor_id}
-                            plantao_id={plantaoSelecionado?.plantao_id}
-                        />
+                            <ModalAceitarMedico
+                                gestor_id={gestor_id}
+                                plantao_id={plantaoSelecionado?.plantao_id}
+                            />
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }
